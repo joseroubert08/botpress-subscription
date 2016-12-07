@@ -6,11 +6,11 @@ CRUD API
 [X] Delete subscription
 
 UI
-[ ] Get all
-[ ] Create new
+[X] Get all
+[X] Create new
 [ ] Display
 [ ] Modify
-[ ] Delete
+[X] Delete
 
 Incoming Middleware
 [ ] Check if matching subscribe/unsubscribe/manage keywords

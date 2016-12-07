@@ -1,4 +1,5 @@
 import Validate from 'validate-arguments'
+import moment from 'moment'
 
 module.exports = bp => {
   return {
@@ -10,17 +11,17 @@ module.exports = bp => {
       return bp.db.get()
       .then(listAllSubscription)
     },
-    create: (knex, category) => {
+    create: (category) => {
       return bp.db.get()
-      .then(create)
+      .then(knex => create(knex, category))
     },
-    modify: (knex, options) => {
+    modify: (options) => {
       return bp.db.get()
-      .then(modify)
+      .then(knex => modify(knex, options))
     },
-    delete: (knex, id) => {
+    delete: (id) => {
       return bp.db.get()
-      .then(remove)
+      .then(knex => remove(knex, id))
     }
   }
 }
@@ -29,7 +30,7 @@ function initialize(knex) {
   return knex.schema.createTableIfNotExists('subscriptions', function (table) {
     table.increments('id').primary()
     table.timestamp('created_on')
-    table.string('category').unique()
+    table.string('category')
     table.string('sub_keywords')
     table.string('unsub_keywords')
     table.string('sub_action')
@@ -45,6 +46,12 @@ function initialize(knex) {
       table.timestamp('ts')
     })
   })
+  .then(function() {
+    return knex.schema.raw(`create unique index
+      if not exists "subscriptions_category_unique" 
+      on "subscriptions" ("category")`)
+    .then()
+  })
 }
 
 function listAllSubscription(knex) {
@@ -52,6 +59,11 @@ function listAllSubscription(knex) {
   .leftJoin('subscription_users', 'subscription_users.subscriptionId', 'subscriptions.id')
   .groupBy('subscription_users.subscriptionId')
   .select(knex.raw(`subscriptions.*, count(userId) as count`))
+  .then(subs => subs.map(sub => {
+    sub.sub_keywords = JSON.parse(sub.sub_keywords)
+    sub.unsub_keywords = JSON.parse(sub.unsub_keywords)
+    return sub
+  }))
 }
 
 function create(knex, category) {
@@ -63,6 +75,7 @@ function create(knex, category) {
 
   return knex('subscriptions')
   .insert({
+    created_on: moment().format('x'),
     category: category,
     sub_keywords: JSON.stringify(['SUBSCRIBE_' + upper]),
     unsub_keywords: JSON.stringify(['UNSUBSCRIBE_' + upper]),

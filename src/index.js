@@ -1,3 +1,6 @@
+import path from 'path'
+import fs from 'fs'
+
 import db from './db'
 
 const loadConfigFromFile = filePath => {
@@ -27,9 +30,25 @@ module.exports = {
     const configFile = path.join(bp.projectLocation, bp.botfile.modulesConfigDir, 'botpress-subscription.json')
     const config = loadConfigFromFile(configFile)
 
-    bp.getRouter('botpress-subscriptions')
-    .get('/subscriptions', (req, res) => {
-      res.send([])
+    const router = bp.getRouter('botpress-subscription')
+    
+    router.get('/config', (req, res) => {
+      res.send(config)
+    })
+
+    router.get('/subscriptions', (req, res) => {
+      db(bp).listAll()
+      .then(subs => res.send(subs))
+    })
+
+    router.put('/subscriptions/:category', (req, res) => {
+      db(bp).create(req.params.category)
+      .then(() => res.sendStatus(200))
+    })
+
+    router.delete('/subscriptions/:id', (req, res) => {
+      db(bp).delete(req.params.id)
+      .then(() => res.sendStatus(200))
     })
 
   }
