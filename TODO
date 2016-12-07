@@ -1,9 +1,9 @@
 CRUD API
-[ ] Database schema
-[ ] Get all subscriptions
-[ ] Create new subscription
-[ ] Modify subscription
-[ ] Delete subscription
+[X] Database schema
+[X] Get all subscriptions
+[X] Create new subscription
+[X] Modify subscription
+[X] Delete subscription
 
 UI
 [ ] Get all
