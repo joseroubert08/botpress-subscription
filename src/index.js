@@ -93,6 +93,13 @@ module.exports = {
       description: 'Subscribes and unsubscribes users to the defined Subscriptions.'
     })
 
+    bp.subscription = {
+      subscribe: db(bp).subscribe,
+      unsubscribe: db(bp).unsubscribe,
+      isSubscribed: db(bp).isSubscribed,
+      getSubscribed: db(bp).getSubscribed
+    }
+    
     db(bp).bootstrap()
     .then(db(bp).listAll)
     .then(subs => subscriptions = subs)

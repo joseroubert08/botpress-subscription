@@ -14,14 +14,15 @@ UI
 
 Incoming Middleware
 [X] Check if matching subscribe/unsubscribe/manage keywords
-[ ] Sub + OnSub
-[ ] Unsub + OnUnsub
+[X] Sub + OnSub
+[X] Unsub + OnUnsub
 [X] Manage
 
 Scope + API
-[ ] bp.subscriptions.isSubscribed(userId, category)
-[ ] bp.subscriptions.subscribe(userId, category)
-[ ] bp.subscriptions.unsubscribe(userId, category)
-[ ] bp.subscriptions.getAllSubscribed(category)
+[X] bp.subscriptions.isSubscribed(userId, category)
+[X] bp.subscriptions.subscribe(userId, category)
+[X] bp.subscriptions.unsubscribe(userId, category)
+[X] bp.subscriptions.getAllSubscribed(category)
 
 [ ] Readme
+[ ] Handle errors

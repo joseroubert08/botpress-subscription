@@ -32,6 +32,14 @@ module.exports = bp => {
     unsubscribe: (userId, category) => {
       return bp.db.get()
       .then(knex => unsubscribe(knex, userId, category))
+    },
+    isSubscribed: (userId, category) => {
+      return bp.db.get()
+      .then(knex => isSubscribed(knex, userId, category))
+    },
+    getSubscribed: (userId) => {
+      return bp.db.get()
+      .then(knex => getSubscribed(knex, userId))
     }
   }
 }
@@ -64,16 +72,20 @@ function initialize(knex) {
   })
 }
 
+function mapSubscriptions(subs) {
+  return subs.map(sub => {
+    sub.sub_keywords = JSON.parse(sub.sub_keywords)
+    sub.unsub_keywords = JSON.parse(sub.unsub_keywords)
+    return sub
+  })
+}
+
 function listAllSubscription(knex) {
   return knex('subscriptions')
   .leftJoin('subscription_users', 'subscription_users.subscriptionId', 'subscriptions.id')
   .groupBy('subscriptions.id')
   .select(knex.raw(`subscriptions.*, count(userId) as count`))
-  .then(subs => subs.map(sub => {
-    sub.sub_keywords = JSON.parse(sub.sub_keywords)
-    sub.unsub_keywords = JSON.parse(sub.unsub_keywords)
-    return sub
-  }))
+  .then(mapSubscriptions)
 }
 
 function create(knex, category) {
@@ -155,6 +167,19 @@ function unsubscribe(knex, userId, category) {
     })
     .del()
   })
+}
+
+function isSubscribed(knex, userId, category) {
+  return getSubscribed(knex, userId)
+  .then(subs => _.includes(subs, category))
+}
+
+function getSubscribed(knex, userId) {
+  return knex('subscription_users')
+  .join('subscriptions', 'subscriptions.id', 'subscription_users.subscriptionId')
+  .where({ userId })
+  .select('category')
+  .then(subs => subs.map(s => s.category))
 }
 
 function validateOptions(options) {
