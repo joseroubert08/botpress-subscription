@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Easily create and manage user subscriptions",
   "main": "bin/node.bundle.js",
+  "homepage": "https://github.com/botpress/botpress-subscription",
   "botpress": {
     "menuText": "Subscription",
     "menuIcon": "subscriptions",

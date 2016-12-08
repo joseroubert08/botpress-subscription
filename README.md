@@ -2,7 +2,7 @@
 
 Provides an interface and APIs to manage user subscriptions to your bot.
 
-**Supported connectors: ** All connectors that support the Text interface
+**Supported connectors:** All connectors that support the Text interface
 
 <img src='/assets/screenshot.jpg' height='300px'>
 
@@ -21,7 +21,7 @@ The subscription module should now be available in your bot UI, and the APIs exp
 Your bot can offer many categories of subscriptions, for example:
 > `NEWSLETTER`, `ALERTS`, `DAILY_REMINDERS_9AM`, `DAILY_REMINDERS_6PM`
 
-Your user can subscribe and unsubscribe to one or many of these subscriptions.
+Your users can subscribe and unsubscribe to one or many of these subscriptions.
 
 ### Custom keywords to Subscribe and Unsubscribe to subscriptions
 
