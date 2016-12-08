@@ -24,6 +24,14 @@ module.exports = bp => {
     delete: (id) => {
       return bp.db.get()
       .then(knex => remove(knex, id))
+    },
+    subscribe: (userId, category) => {
+      return bp.db.get()
+      .then(knex => subscribe(knex, userId, category))
+    },
+    unsubscribe: (userId, category) => {
+      return bp.db.get()
+      .then(knex => unsubscribe(knex, userId, category))
     }
   }
 }
@@ -111,6 +119,40 @@ function remove(knex, id) {
   .then(() => {
     return knex('subscriptions')
     .where('id', id)
+    .del()
+  })
+}
+
+function subscribe(knex, userId, category) {
+  return knex('subscriptions')
+  .where('category', category)
+  .then().get(0).then(sub => {
+    if (!sub) {
+      throw new Error('Could not find subscription of category: ' + category)
+    }
+
+    return knex('subscription_users')
+    .insert({
+      subscriptionId: sub.id,
+      userId: userId,
+      ts: moment().format('x')
+    })
+  })
+}
+
+function unsubscribe(knex, userId, category) {
+  return knex('subscriptions')
+  .where('category', category)
+  .then().get(0).then(sub => {
+    if (!sub) {
+      throw new Error('Could not find subscription of category: ' + category)
+    }
+
+    return knex('subscription_users')
+    .where({
+      subscriptionId: sub.id,
+      userId: userId
+    })
     .del()
   })
 }

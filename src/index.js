@@ -57,13 +57,21 @@ const incomingMiddleware = bp => (event, next) => {
     let exit = false
     subscriptions.forEach(sub => {
       if (_.includes(sub.sub_keywords, event.text)) {
+        // TODO handle errors
         exit = true
-        return executeAction(sub.sub_action_type, sub.sub_action)
+        db(bp).subscribe(event.user.id, sub.category)
+        .then(() => {
+          executeAction(sub.sub_action_type, sub.sub_action)
+        })
       }
 
       if (_.includes(sub.unsub_keywords, event.text)) {
+        // TODO handle errors
         exit = true
-        return executeAction(sub.unsub_action_type, sub.unsub_action) 
+        db(bp).unsubscribe(event.user.id, sub.category)
+        .then(() => {
+          executeAction(sub.unsub_action_type, sub.unsub_action) 
+        })
       }
     })
     if (exit) {
