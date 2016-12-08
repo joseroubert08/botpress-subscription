@@ -95,7 +95,7 @@ export default class SubscriptionModule extends React.Component {
     const { config } = this.state
 
     const updateKeywords = update('manage_keywords')
-    const updateAction = event => update('manage_keywords')(event.target.value)
+    const updateAction = event => update('manage_action')(event.target.value)
     const updateType = event => {
       update('manage_type')(event.target.checked ? 'javascript' : 'text')
     }

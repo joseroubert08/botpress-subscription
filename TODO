@@ -8,15 +8,15 @@ CRUD API
 UI
 [X] Get all
 [X] Create new
-[ ] Display
-[ ] Modify
+[X] Display
+[X] Modify
 [X] Delete
 
 Incoming Middleware
-[ ] Check if matching subscribe/unsubscribe/manage keywords
+[X] Check if matching subscribe/unsubscribe/manage keywords
 [ ] Sub + OnSub
 [ ] Unsub + OnUnsub
-[ ] Manage
+[X] Manage
 
 Scope + API
 [ ] bp.subscriptions.isSubscribed(userId, category)
