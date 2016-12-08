@@ -46,6 +46,11 @@ module.exports = {
       .then(() => res.sendStatus(200))
     })
 
+    router.post('/subscriptions/:id', (req, res) => {
+      db(bp).modify(req.params.id, req.body)
+      .then(() => res.sendStatus(200))
+    })
+
     router.delete('/subscriptions/:id', (req, res) => {
       db(bp).delete(req.params.id)
       .then(() => res.sendStatus(200))

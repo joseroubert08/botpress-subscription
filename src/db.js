@@ -1,5 +1,7 @@
-import Validate from 'validate-arguments'
 import moment from 'moment'
+import _ from 'lodash'
+
+const Validate = require('validate-arguments')
 
 module.exports = bp => {
   return {
@@ -15,9 +17,9 @@ module.exports = bp => {
       return bp.db.get()
       .then(knex => create(knex, category))
     },
-    modify: (options) => {
+    modify: (id, options) => {
       return bp.db.get()
-      .then(knex => modify(knex, options))
+      .then(knex => update(knex, id, options))
     },
     delete: (id) => {
       return bp.db.get()
@@ -57,7 +59,7 @@ function initialize(knex) {
 function listAllSubscription(knex) {
   return knex('subscriptions')
   .leftJoin('subscription_users', 'subscription_users.subscriptionId', 'subscriptions.id')
-  .groupBy('subscription_users.subscriptionId')
+  .groupBy('subscriptions.id')
   .select(knex.raw(`subscriptions.*, count(userId) as count`))
   .then(subs => subs.map(sub => {
     sub.sub_keywords = JSON.parse(sub.sub_keywords)
@@ -86,11 +88,11 @@ function create(knex, category) {
   })
 }
 
-function update(knex, options) {
-  validateOptions(options)
+function update(knex, id, options) {
+  options = validateOptions(options)
 
   return knex('subscriptions')
-  .where('id', options.id)
+  .where('id', id)
   .update({
     category: options.category,
     sub_keywords: JSON.stringify(options.sub_keywords),
@@ -114,8 +116,7 @@ function remove(knex, id) {
 }
 
 function validateOptions(options) {
-  const args = Validate(options, {
-    id: 'whole',
+  const args = Validate.named(options, {
     category: 'string',
     sub_keywords: 'array',
     unsub_keywords: 'array',
@@ -128,4 +129,14 @@ function validateOptions(options) {
   if(!args.isValid()) {
     throw args.errorString()
   }
+
+  return _.pick(options, [
+    'category', 
+    'sub_keywords', 
+    'unsub_keywords',
+    'sub_action',
+    'unsub_action',
+    'sub_action_type',
+    'unsub_action_type'
+  ])
 }

@@ -7,11 +7,20 @@ import {
   Checkbox,
   Label,
   Alert,
-  Row
+  Row,
+  ControlLabel,
+  FormControl,
+  Collapse,
+  Form,
+  FormGroup
 } from 'react-bootstrap'
+import Toggle from 'react-toggle'
+import TagsInput from 'react-tagsinput'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
+import 'react-tagsinput/react-tagsinput.css'
+import 'react-toggle/style.css'
 import style from './style.scss'
 
 const apiUrl = url => '/api/botpress-subscription/' + url
@@ -47,6 +56,7 @@ export default class SubscriptionModule extends React.Component {
     .catch(err => {
       this.setState({ error: 'An error occured' }) // TODO Change this
     })
+    .then(() => this.resetSubscriptionHashes())
   }
 
   fetchConfig() {
@@ -78,9 +88,37 @@ export default class SubscriptionModule extends React.Component {
   }
 
   delete(id) {
+    const confirm = window.confirm('Deleting a subscription will also unsubscribe its users. This can\'t be undone. Continue ?')
+    if (!confirm) {
+      return
+    }
+
     const { axios } = this.props.bp
     axios.delete(apiUrl('subscriptions/' + id))
     .then(::this.fetchSubscriptions) 
+  }
+
+  resetSubscriptionHashes() {
+    const subHashes = this.state.subscriptions 
+      && this.state.subscriptions.reduce((acc, sub) => {
+        acc[sub.id] = JSON.stringify(sub)
+        return acc
+      }, {})
+
+    this.setState({ subHashes })
+  }
+
+  isSubscriptionDirty(id) {
+    const sub = _.find(this.state.subscriptions, { id })
+    return (sub && JSON.stringify(sub)) 
+      !== (this.state.subHashes && this.state.subHashes[id])
+  }
+
+  save(id) {
+    const { axios } = this.props.bp
+    const sub = _.find(this.state.subscriptions, { id })
+    axios.post(apiUrl('subscriptions/' + id), sub)
+    .then(::this.fetchSubscriptions)
   }
 
   renderCreateNew() {
@@ -91,13 +129,75 @@ export default class SubscriptionModule extends React.Component {
   }
 
   renderSingleSubscription(sub) {
+    const dirty = this.isSubscriptionDirty(sub.id)
+
     const footer = <div className="pull-right">
-      <Button bsStyle="danger" onClick={() => this.delete(sub.id)}>Delete</Button>
-      <Button bsStyle="success">Save</Button>
+      <Button bsStyle="default" onClick={() => this.delete(sub.id)}>Delete</Button>
+      <Button bsStyle="success" 
+        disabled={!dirty} 
+        onClick={() => this.save(sub.id)}>Save</Button>
     </div>
 
-    return <Panel key={sub.id} header={sub.category} footer={footer}>
-      Content goes here
+    const header = <span className={style.subHeader}>
+      <strong>{sub.category}</strong>
+      {' (' + sub.count + ' subscribers)'}
+    </span>
+
+    const hChange = property => value => {
+      let subscriptions = this.state.subscriptions.map(s => {
+        if (s.id === sub.id) {
+          s[property] = value
+        }
+        return s
+      })
+      this.setState({ subscriptions })
+    }
+
+    const hTextArea = property => event => {
+      return hChange(property)(event.target.value) 
+    }
+
+    const hToggle = property => event => {
+      return hChange(property)(event.target.checked ? 'javascript' : 'text')
+    }
+
+    const isToggled = property => sub[property] === 'javascript'
+
+    const collapsed = this.state.selected === sub.id
+
+    return <Panel collapsible={true} key={sub.id} header={header} footer={footer}>
+      <div>
+        <Form>
+          <FormGroup>
+            <ControlLabel>Subscribe keywords</ControlLabel>
+            <TagsInput value={sub.sub_keywords} onChange={hChange('sub_keywords')} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Action type ({sub.sub_action_type}) {' '}</ControlLabel>
+            <Toggle className={style.toggle}
+              defaultChecked={isToggled('sub_action_type')}
+              onChange={hToggle('sub_action_type')} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Subscribe action</ControlLabel>
+            <FormControl componentClass="textarea" value={sub.sub_action} onChange={hTextArea('sub_action')}/>
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Unsubscribe keywords</ControlLabel>
+            <TagsInput value={sub.unsub_keywords} onChange={hChange('unsub_keywords')} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Action type ({sub.unsub_action_type}) {' '}</ControlLabel>
+            <Toggle className={style.toggle}
+              defaultChecked={isToggled('unsub_action_type')}
+              onChange={hToggle('unsub_action_type')} />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Unsubscribe action</ControlLabel>
+            <FormControl componentClass="textarea" value={sub.unsub_action} onChange={hTextArea('unsub_action')}/>
+          </FormGroup>
+        </Form>
+      </div>
     </Panel>
   }
 
