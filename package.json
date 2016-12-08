@@ -1,6 +1,6 @@
 {
   "name": "botpress-subscription",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easily create and manage user subscriptions",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/botpress-subscription",
