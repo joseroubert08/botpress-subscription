@@ -22,18 +22,20 @@ var saveConfigToFile = (config, filePath) => {
 
 module.exports = {
   init: function(bp) {
-
     return db(bp).bootstrap()
-
   },
   ready: function(bp) {
     const configFile = path.join(bp.projectLocation, bp.botfile.modulesConfigDir, 'botpress-subscription.json')
-    const config = loadConfigFromFile(configFile)
 
     const router = bp.getRouter('botpress-subscription')
     
     router.get('/config', (req, res) => {
-      res.send(config)
+      res.send(loadConfigFromFile(configFile))
+    })
+
+    router.post('/config', (req, res) => {
+      saveConfigToFile(req.body, configFile)
+      res.sendStatus(200)
     })
 
     router.get('/subscriptions', (req, res) => {

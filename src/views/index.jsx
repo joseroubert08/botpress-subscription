@@ -66,15 +66,58 @@ export default class SubscriptionModule extends React.Component {
     .catch(err => {
       this.setState({ error: 'An error occured' }) // TODO Change this
     })
+    .then(() => this.resetConfigHash())
+  }
+
+  saveConfig() {
+    const { axios } = this.props.bp
+    return axios.post(apiUrl('config'), this.state.config)
+    .catch(err => {
+      this.setState({ error: 'An error occured' }) // TODO Change this
+    })
+    .then(::this.fetchConfig)
   }
 
   renderGlobalConfig() {
+    const dirty = this.isConfigDirty()
+
     const footer = <div className="pull-right">
-      <Button bsStyle="success">Save</Button>
+      <Button bsStyle="success" disabled={!dirty} onClick={::this.saveConfig}>
+      Save</Button>
     </div>
 
+    const update = property => value => {
+      this.setState({
+        config: Object.assign({}, this.state.config, { [property]: value })
+      })
+    }
+
+    const { config } = this.state
+
+    const updateKeywords = update('manage_keywords')
+    const updateAction = event => update('manage_keywords')(event.target.value)
+    const updateType = event => {
+      update('manage_type')(event.target.checked ? 'javascript' : 'text')
+    }
+    const isToggled = config.manage_type === 'javascript'
+
     return <Panel header="Configuration" footer={footer}>
-      Config goes here
+      <Form>
+        <FormGroup>
+          <ControlLabel>Manage keywords</ControlLabel>
+          <TagsInput value={config.manage_keywords} onChange={updateKeywords} />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Action type ({config.manage_type}) {' '}</ControlLabel>
+          <Toggle className={style.toggle}
+            defaultChecked={isToggled}
+            onChange={updateType} />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Subscribe action</ControlLabel>
+          <FormControl componentClass="textarea" value={config.manage_action} onChange={updateAction}/>
+        </FormGroup>
+      </Form>
     </Panel>
   }
 
@@ -106,6 +149,15 @@ export default class SubscriptionModule extends React.Component {
       }, {})
 
     this.setState({ subHashes })
+  }
+
+  resetConfigHash() {
+    const configHash = JSON.stringify(this.state.config)
+    this.setState({ configHash })
+  }
+
+  isConfigDirty() {
+    return JSON.stringify(this.state.config) !== this.state.configHash
   }
 
   isSubscriptionDirty(id) {
