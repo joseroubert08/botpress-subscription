@@ -53,6 +53,24 @@ const incomingMiddleware = bp => (event, next) => {
     return executeAction(config.manage_type, config.manage_action)
   }
 
+  if (subscriptions) {
+    let exit = false
+    subscriptions.forEach(sub => {
+      if (_.includes(sub.sub_keywords, event.text)) {
+        exit = true
+        return executeAction(sub.sub_action_type, sub.sub_action)
+      }
+
+      if (_.includes(sub.unsub_keywords, event.text)) {
+        exit = true
+        return executeAction(sub.unsub_action_type, sub.unsub_action) 
+      }
+    })
+    if (exit) {
+      return
+    }
+  }
+
   next()
 }
 
