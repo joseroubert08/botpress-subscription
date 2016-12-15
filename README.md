@@ -76,19 +76,19 @@ Update an existing subscription.
 
 Delete an existing subscription and also unsubscribes all the users subscribed to this subscription.
 
-### `bp.subscribe(userId, category)` -> Promise
+### `bp.subscription.subscribe(userId, category)` -> Promise
 
 Subscribes a user to the subscription
 
-### `bp.unsubscribe(userId, category)` -> Promise
+### `bp.subscription.unsubscribe(userId, category)` -> Promise
 
 Unsubscribes a user from the subscription
 
-### `bp.isSubscribed(userId, category)` -> Promise(bool)
+### `bp.subscription.isSubscribed(userId, category)` -> Promise(bool)
 
 Subscribes a user to the subscription
 
-### `bp.getSubscribed(userId)` -> Promise([categories...])
+### `bp.subscription.getSubscribed(userId)` -> Promise([categories...])
 
 Returns a list of the categories the user is subscribed to
 
